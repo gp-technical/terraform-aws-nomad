@@ -120,7 +120,6 @@ function install_dependencies {
     sudo apt-get install -y awscli curl unzip jq
     install_supervisord_debian
   elif $(has_yum); then
-    sudo yum update -y
     sudo yum install -y aws curl unzip jq
     install_supervisord_amazon_linux
   else
