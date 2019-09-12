@@ -128,12 +128,14 @@ function split_by_lines {
 
 function generate_nomad_config {
   local -r server="${1}"
-  local -r config_dir="${2}"
-  local -r user="${3}"
-  local -r cluster_tag_key="${4}"
-  local -r cluster_tag_value="${5}"
-  local -r datacenter="${6}"
-  local -r vault_addr="${7}"
+  local -r client="${2}"
+  local -r num_servers="${3}"
+  local -r config_dir="${4}"
+  local -r user="${5}"
+  local -r cluster_tag_key="${6}"
+  local -r cluster_tag_value="${7}"
+  local -r datacenter="${8}"
+  local -r vault_addr="${9}"
   local -r config_path="$config_dir/$NOMAD_CONFIG_FILE"
 
   local instance_id=""
@@ -155,6 +157,26 @@ EOF
 )
   fi
 
+  local server_config=""
+  if [[ "$server" == "true" ]]; then
+    server_config=$(cat <<EOF
+"server": {
+    "enabled": true,
+    "bootstrap_expect": $num_servers
+  },
+EOF
+)
+  fi
+
+  local client_config=""
+  if [[ "$client" == "true" ]]; then
+    client_config=$(cat <<EOF
+"client": {
+    "enabled": true
+  },
+EOF
+)
+  fi
   local recursors_config=""
   if (( ${#recursors[@]} != 0 )); then
         recursors_config="\"recursors\" : [ "
@@ -183,18 +205,11 @@ fi
   },
 EOF
 )
-  local client_configuration=$(cat <<EOF
-"client": {
-    "enabled": true
-  },
-EOF
-)
-
   local advertise_configuration=$(cat <<EOF
 "advertise": {
-  "http": "$instance_ip_address",
-  "rpc": "$instance_ip_address",
-  "serf": "$instance_ip_address"
+    "http": "$instance_ip_address",
+    "rpc": "$instance_ip_address",
+    "serf": "$instance_ip_address"
   },
 EOF
 )
@@ -202,12 +217,12 @@ EOF
   local default_config_json=$(cat <<EOF
 {
   "name": "$instance_id",
-  $bootstrap_expect
   "region": "$instance_region",
   "datacenter": "$datacenter",
   $retry_join_json
   $consul_configuration
-  $client_configuration
+  $client_config
+  $server_config
   $advertise_configuration
   $vault_configuration
   "bind_addr": "0.0.0.0"
@@ -435,6 +450,8 @@ function run {
   else
 
     generate_nomad_config "$server" \
+      "$client" \
+      "$num_servers" \
       "$config_dir" \
       "$user" \
       "$cluster_tag_key" \
