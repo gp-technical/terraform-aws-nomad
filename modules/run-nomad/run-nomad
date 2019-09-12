@@ -132,9 +132,6 @@ function generate_nomad_config {
   local -r vault_addr="${7}"
   local -r config_path="$config_dir/$NOMAD_CONFIG_FILE"
 
-  shift 19
-  local -r recursors=("$@")
-
   local instance_id=""
   local instance_ip_address=""
   local instance_region=""
