@@ -208,6 +208,8 @@ EOF
   $retry_join_json
   $consul_configuration
   $client_configuration
+  $advertise_configuration
+  $vault_configuration
   "bind_addr": "0.0.0.0"
 }
 EOF
