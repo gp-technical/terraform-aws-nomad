@@ -188,7 +188,7 @@ EOF
   fi
 
   local vault_configuration=""
-  if [[ "$vault_addr" == "true" ]]; then
+  if [[ "$vault_addr" != "" ]]; then
 
   vault_configuration=$(cat <<EOF
 "vault": {
@@ -388,8 +388,8 @@ function run {
         environment+=("$2")
         shift
         ;;
-      --vault_addr)
-        vault_addr=""
+      --vault-addr)
+        vault_addr="$2"
         shift
         ;;
       --skip-nomad-config)
