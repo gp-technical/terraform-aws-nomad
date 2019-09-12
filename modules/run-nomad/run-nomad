@@ -100,6 +100,10 @@ function get_instance_id {
   lookup_path_in_instance_metadata "instance-id"
 }
 
+function get_instance_availability_zone {
+  lookup_path_in_instance_metadata "placement/availability-zone"
+}
+
 function get_instance_region {
   lookup_path_in_instance_dynamic_data "instance-identity/document" | jq -r ".region"
 }
@@ -421,7 +425,7 @@ function run {
   fi
 
   if [[ -z "$datacenter" ]]; then
-    datacenter=$(get_instance_region)
+    datacenter=$(get_instance_availability_zone)
   fi
 
   if [[ "$skip_nomad_config" == "true" ]]; then
